@@ -50,8 +50,10 @@ class BookSearchViewController: UIViewController, UISearchBarDelegate {
     
     private func setupUI() {
         view.backgroundColor = .white
-        
-        [searchBar, tableView].forEach { view.addSubview($0) }
+        [
+            searchBar,
+            tableView
+        ].forEach { view.addSubview($0) }
         
         // 서치바 제약 조건
         searchBar.snp.makeConstraints {
