@@ -104,5 +104,9 @@ extension BookSearchViewController: UITableViewDelegate {
         tableView.deselectRow(at: indexPath, animated: true)
         let selectedBook = filteredBooks[indexPath.row]
         print("\(selectedBook)을 선택함")
+        
+        let bookDetailVC = BookDetailViewController()
+        bookDetailVC.modalPresentationStyle = .formSheet
+        present(bookDetailVC, animated: true, completion: nil)
     }
 }
