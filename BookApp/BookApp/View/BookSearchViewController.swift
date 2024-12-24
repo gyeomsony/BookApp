@@ -13,7 +13,7 @@ class BookSearchViewController: UIViewController, UISearchBarDelegate {
     // searchBar는 이 프로퍼티로 선언되어 직접 초기화
     private var searchBar: UISearchBar = {
         let searchBar = UISearchBar()
-        searchBar.placeholder = "책 검색"
+        searchBar.placeholder = "책 검색해보기"
         searchBar.sizeToFit()
         return searchBar
     }()
@@ -45,8 +45,7 @@ class BookSearchViewController: UIViewController, UISearchBarDelegate {
     }
     
     private func setupNavigationBar() {
-        navigationController?.isNavigationBarHidden = false
-        navigationItem.title = "책 검색"
+        navigationController?.isNavigationBarHidden = true
     }
     
     private func setupUI() {
@@ -56,7 +55,7 @@ class BookSearchViewController: UIViewController, UISearchBarDelegate {
         
         // 서치바 제약 조건
         searchBar.snp.makeConstraints {
-            $0.top.equalTo(view.safeAreaLayoutGuide.snp.top)
+            $0.top.equalToSuperview().offset(70)
             $0.left.right.equalToSuperview()
             $0.height.equalTo(50)
         }
