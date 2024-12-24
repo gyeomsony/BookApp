@@ -6,6 +6,11 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		8E32C3BC2D1AC7760076C31E /* Moya in Frameworks */ = {isa = PBXBuildFile; productRef = 8E32C3BB2D1AC7760076C31E /* Moya */; };
+		8E32C3BF2D1AC7880076C31E /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 8E32C3BE2D1AC7880076C31E /* SnapKit */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		8EB587092D19505300FAEBF1 /* BookApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BookApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -36,6 +41,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8E32C3BC2D1AC7760076C31E /* Moya in Frameworks */,
+				8E32C3BF2D1AC7880076C31E /* SnapKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -78,6 +85,8 @@
 			);
 			name = BookApp;
 			packageProductDependencies = (
+				8E32C3BB2D1AC7760076C31E /* Moya */,
+				8E32C3BE2D1AC7880076C31E /* SnapKit */,
 			);
 			productName = BookApp;
 			productReference = 8EB587092D19505300FAEBF1 /* BookApp.app */;
@@ -107,6 +116,10 @@
 			);
 			mainGroup = 8EB587002D19505300FAEBF1;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				8E32C3BA2D1AC7760076C31E /* XCRemoteSwiftPackageReference "Moya" */,
+				8E32C3BD2D1AC7880076C31E /* XCRemoteSwiftPackageReference "SnapKit" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 8EB5870A2D19505300FAEBF1 /* Products */;
 			projectDirPath = "";
@@ -333,6 +346,38 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		8E32C3BA2D1AC7760076C31E /* XCRemoteSwiftPackageReference "Moya" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Moya/Moya.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 15.0.3;
+			};
+		};
+		8E32C3BD2D1AC7880076C31E /* XCRemoteSwiftPackageReference "SnapKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/SnapKit/SnapKit";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.7.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		8E32C3BB2D1AC7760076C31E /* Moya */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8E32C3BA2D1AC7760076C31E /* XCRemoteSwiftPackageReference "Moya" */;
+			productName = Moya;
+		};
+		8E32C3BE2D1AC7880076C31E /* SnapKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8E32C3BD2D1AC7880076C31E /* XCRemoteSwiftPackageReference "SnapKit" */;
+			productName = SnapKit;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 8EB587012D19505300FAEBF1 /* Project object */;
 }
