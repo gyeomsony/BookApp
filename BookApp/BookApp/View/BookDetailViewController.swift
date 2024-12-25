@@ -10,6 +10,9 @@ import SnapKit
 
 class BookDetailViewController: UIViewController {
     
+    private let scrollView = UIScrollView() // 스크롤 뷰
+    private let contentView = UIView()
+
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.text = "제목 없음"
@@ -52,6 +55,12 @@ class BookDetailViewController: UIViewController {
 어느 날 갑자기 출현한 정체불명의 식인종 거인들에 의해 인류의 태반이 잡아 먹히며 인류는 절멸 위기에 처한다.
 목숨을 부지한 생존자들은 높이 50m의 거대한 삼중의 방벽 월 마리아, 월 로제, 월 시나를 건설하여 그 곳으로 도피, 방벽 내부에서 100여 년에 걸쳐 평화의 시대를 영위하게 된다.
 그리고 100여 년이 지난 845년, 대부분 주민들이 오래도록 지속되어 온 평화에 안주하는 반면, 주인공 엘런 예거는 사람들이 거인들에게 둘러싸여 벽 안에서 가축같이 살아가는 세계에 커다란 불만을 느낀다. 그는 벽 밖의 세계로 나가서 세계를 자유롭게 누비며 탐험하는 것을 열망한다. 
+어느 날 갑자기 출현한 정체불명의 식인종 거인들에 의해 인류의 태반이 잡아 먹히며 인류는 절멸 위기에 처한다.
+목숨을 부지한 생존자들은 높이 50m의 거대한 삼중의 방벽 월 마리아, 월 로제, 월 시나를 건설하여 그 곳으로 도피, 방벽 내부에서 100여 년에 걸쳐 평화의 시대를 영위하게 된다.
+그리고 100여 년이 지난 845년, 대부분 주민들이 오래도록 지속되어 온 평화에 안주하는 반면, 주인공 엘런 예거는 사람들이 거인들에게 둘러싸여 벽 안에서 가축같이 살아가는 세계에 커다란 불만을 느낀다. 그는 벽 밖의 세계로 나가서 세계를 자유롭게 누비며 탐험하는 것을 열망한다. 
+어느 날 갑자기 출현한 정체불명의 식인종 거인들에 의해 인류의 태반이 잡아 먹히며 인류는 절멸 위기에 처한다.
+목숨을 부지한 생존자들은 높이 50m의 거대한 삼중의 방벽 월 마리아, 월 로제, 월 시나를 건설하여 그 곳으로 도피, 방벽 내부에서 100여 년에 걸쳐 평화의 시대를 영위하게 된다.
+그리고 100여 년이 지난 845년, 대부분 주민들이 오래도록 지속되어 온 평화에 안주하는 반면, 주인공 엘런 예거는 사람들이 거인들에게 둘러싸여 벽 안에서 가축같이 살아가는 세계에 커다란 불만을 느낀다. 그는 벽 밖의 세계로 나가서 세계를 자유롭게 누비며 탐험하는 것을 열망한다. 
 """
         label.font = .systemFont(ofSize: 13)
         label.textColor = .black
@@ -69,7 +78,7 @@ class BookDetailViewController: UIViewController {
         button.backgroundColor = .systemBlue
         return button
     }()
-    // 더보기
+    
     private let moreButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle("더보기", for: .normal)
@@ -78,7 +87,7 @@ class BookDetailViewController: UIViewController {
         return button
     }()
     
-    private var isExpanded = false // 텍스트 확장 되었는지 확인
+    private var isExpanded = false // 텍스트 확장 여부 확인
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -88,6 +97,12 @@ class BookDetailViewController: UIViewController {
     }
     
     private func setupUI() {
+        view.addSubview(scrollView)
+        scrollView.addSubview(contentView)
+        
+        scrollView.showsVerticalScrollIndicator = false
+        
+        // 콘텐츠뷰에 서브뷰 추가
         [
             titleLabel,
             authorLabel,
@@ -96,10 +111,11 @@ class BookDetailViewController: UIViewController {
             descriptionLabel,
             moreButton,
             addButton
-        ].forEach { view.addSubview($0) }
+        ].forEach { contentView.addSubview($0) }
         
+        // 콘텐츠뷰 내부 레이아웃 설정
         titleLabel.snp.makeConstraints {
-            $0.top.equalTo(view.safeAreaLayoutGuide.snp.top).offset(30)
+            $0.top.equalTo(contentView.snp.top).offset(30)
             $0.leading.trailing.equalToSuperview().inset(10)
         }
         
@@ -131,44 +147,40 @@ class BookDetailViewController: UIViewController {
         }
         
         addButton.snp.makeConstraints {
-            $0.bottom.equalToSuperview().inset(40)
-            $0.centerX.equalToSuperview()
+            $0.top.equalTo(moreButton.snp.bottom).offset(30)
             $0.leading.trailing.equalToSuperview().inset(10)
             $0.height.equalTo(50)
+            $0.bottom.equalTo(contentView.snp.bottom).inset(40) // 콘텐츠뷰의 마지막 요소에 맞춤
         }
-    }
-    
-    // 액션 설정 함수 만들어서 addAction 편하게 사용하기
-    func toggleDescriptionAction(action: UIAction) {
-        self.toggleDescription()
-    }
-
-    func addBookAction(action: UIAction) {
-        self.addBook()
+        
+        // 스크롤뷰와 콘텐츠뷰 레이아웃
+        scrollView.snp.makeConstraints {
+            $0.edges.equalToSuperview()
+        }
+        
+        contentView.snp.makeConstraints {
+            $0.edges.equalToSuperview()
+            $0.width.equalToSuperview()
+        }
     }
     
     private func setupActions() {
-        moreButton.addAction(UIAction(handler: toggleDescriptionAction), for: .touchUpInside)
-        addButton.addAction(UIAction(handler: addBookAction), for: .touchUpInside)
+        moreButton.addAction(UIAction(handler: { [weak self] _ in
+            self?.toggleDescription()
+        }), for: .touchUpInside)
+        
+        addButton.addAction(UIAction(handler: { [weak self] _ in
+            self?.addBook()
+        }), for: .touchUpInside)
     }
-
-
     
-    @objc private func toggleDescription() {
+    private func toggleDescription() {
         isExpanded.toggle()
-
-        // 텍스트가 확장되면, 전체 텍스트를 보여주고 "더보기" 버튼 텍스트를 변경
-        if isExpanded {
-            descriptionLabel.numberOfLines = 0
-            moreButton.setTitle("닫기", for: .normal)
-        } else {
-            descriptionLabel.numberOfLines = 7
-            moreButton.setTitle("더보기", for: .normal)
-        }
+        descriptionLabel.numberOfLines = isExpanded ? 0 : 7 // 삼항연산자 활용
+        moreButton.setTitle(isExpanded ? "닫기" : "더보기", for: .normal)
     }
     
-    // 우선 그냥 해놓기
-    @objc private func addBook() {
-        print("책이 담겼습니다.")
+    private func addBook() {
+        print("책이 장바구니에 추가되었습니다.")
     }
 }
