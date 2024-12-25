@@ -174,19 +174,13 @@ class BookDetailViewController: UIViewController {
         }
         
         addButton.snp.makeConstraints {
-            $0.top.equalTo(moreButton.snp.bottom).offset(60)
-            //$0.trailing.equalToSuperview().inset(10)
-            $0.height.equalTo(50)
             $0.width.equalTo(270)
-            $0.bottom.equalTo(contentView.snp.bottom).inset(40)
+            $0.height.equalTo(50)
         }
         
         closeButton.snp.makeConstraints {
-            $0.top.equalTo(moreButton.snp.bottom).offset(60)
-           // $0.leading.equalToSuperview().inset(10)
-            $0.height.equalTo(50)
             $0.width.equalTo(100)
-            $0.bottom.equalTo(contentView.snp.bottom).inset(40)
+            $0.height.equalTo(50)
         }
         
         buttonStackView.snp.makeConstraints {
