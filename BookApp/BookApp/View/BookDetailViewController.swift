@@ -12,7 +12,7 @@ class BookDetailViewController: UIViewController {
     
     private let scrollView = UIScrollView() // 스크롤 뷰
     private let contentView = UIView()
-
+    
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.text = "제목 없음"
@@ -79,6 +79,16 @@ class BookDetailViewController: UIViewController {
         return button
     }()
     
+    private let closeButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle("X", for: .normal)
+        button.setTitleColor(.white, for: .normal)
+        button.titleLabel?.font = .boldSystemFont(ofSize: 20)
+        button.layer.cornerRadius = 15
+        button.backgroundColor = .lightGray
+        return button
+    }()
+    
     private let moreButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle("더보기", for: .normal)
@@ -86,6 +96,15 @@ class BookDetailViewController: UIViewController {
         button.titleLabel?.font = UIFont.systemFont(ofSize: 14)
         return button
     }()
+    
+    private let buttonStackView: UIStackView = {
+        let stackView = UIStackView()
+        stackView.axis = .horizontal
+        stackView.spacing = 10
+        stackView.alignment = .center
+        return stackView
+    }()
+    
     
     private var isExpanded = false // 텍스트 확장 여부 확인
     
@@ -110,8 +129,16 @@ class BookDetailViewController: UIViewController {
             priceLabel,
             descriptionLabel,
             moreButton,
-            addButton
+            addButton,
+            closeButton,
+            buttonStackView
         ].forEach { contentView.addSubview($0) }
+        
+        // 스택뷰
+        [
+            closeButton,
+            addButton
+        ].forEach { buttonStackView.addArrangedSubview($0) }
         
         // 콘텐츠뷰 내부 레이아웃 설정
         titleLabel.snp.makeConstraints {
@@ -147,10 +174,26 @@ class BookDetailViewController: UIViewController {
         }
         
         addButton.snp.makeConstraints {
-            $0.top.equalTo(moreButton.snp.bottom).offset(30)
-            $0.leading.trailing.equalToSuperview().inset(10)
+            $0.top.equalTo(moreButton.snp.bottom).offset(60)
+            //$0.trailing.equalToSuperview().inset(10)
             $0.height.equalTo(50)
-            $0.bottom.equalTo(contentView.snp.bottom).inset(40) // 콘텐츠뷰의 마지막 요소에 맞춤
+            $0.width.equalTo(270)
+            $0.bottom.equalTo(contentView.snp.bottom).inset(40)
+        }
+        
+        closeButton.snp.makeConstraints {
+            $0.top.equalTo(moreButton.snp.bottom).offset(60)
+           // $0.leading.equalToSuperview().inset(10)
+            $0.height.equalTo(50)
+            $0.width.equalTo(100)
+            $0.bottom.equalTo(contentView.snp.bottom).inset(40)
+        }
+        
+        buttonStackView.snp.makeConstraints {
+            $0.top.equalTo(moreButton.snp.bottom).offset(60)
+            $0.leading.trailing.equalToSuperview().inset(10)
+            $0.bottom.equalTo(contentView.snp.bottom).inset(40)
+            $0.height.equalTo(50)
         }
         
         // 스크롤뷰와 콘텐츠뷰 레이아웃
@@ -171,6 +214,10 @@ class BookDetailViewController: UIViewController {
         
         addButton.addAction(UIAction(handler: { [weak self] _ in
             self?.addBook()
+        }), for: .touchUpInside)
+        
+        closeButton.addAction(UIAction(handler: { [weak self] _ in
+            self?.dismiss(animated: true, completion: nil)
         }), for: .touchUpInside)
     }
     
