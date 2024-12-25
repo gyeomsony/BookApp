@@ -138,18 +138,21 @@ class BookDetailViewController: UIViewController {
         }
     }
     
-    // 액션 설정
-    private func setupActions() {
-        let moreAction = UIAction { _ in
-            self.toggleDescription()
-        }
-        moreButton.addAction(moreAction, for: .touchUpInside)
-        
-        let addAction = UIAction { _ in
-            self.addBook() // 장바구니에 책 담기
-        }
-        addButton.addAction(addAction, for: .touchUpInside)
+    // 액션 설정 함수 만들어서 addAction 편하게 사용하기
+    func toggleDescriptionAction(action: UIAction) {
+        self.toggleDescription()
     }
+
+    func addBookAction(action: UIAction) {
+        self.addBook()
+    }
+    
+    private func setupActions() {
+        moreButton.addAction(UIAction(handler: toggleDescriptionAction), for: .touchUpInside)
+        addButton.addAction(UIAction(handler: addBookAction), for: .touchUpInside)
+    }
+
+
     
     @objc private func toggleDescription() {
         isExpanded.toggle()
