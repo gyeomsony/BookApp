@@ -61,5 +61,38 @@ class SavedBooksViewController: UIViewController {
             $0.top.equalTo(deleteAllButton.snp.bottom).offset(20)
             $0.leading.trailing.bottom.equalToSuperview()
         }
+        
+        // 테이블뷰 설정
+        tableView.dataSource = self
+        tableView.delegate = self
+        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "BookCell")
+        
+        // 버튼 액션
+        deleteAllButton.addAction(UIAction(handler: { [weak self] _ in
+            self?.deleteAllBooks()
+        }), for: .touchUpInside)
+    }
+    
+    private func loadBooks() {
+        savedBooks = CoreDataManager.shared.fetchBooks()
+        tableView.reloadData()
+    }
+    
+    @objc private func deleteAllBooks() {
+        CoreDataManager.shared.deleteAllBooks()
+        loadBooks()
+    }
+}
+
+extension SavedBooksViewController: UITableViewDataSource, UITableViewDelegate {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return savedBooks.count
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "BookCell", for: indexPath)
+        let book = savedBooks[indexPath.row]
+        cell.textLabel?.text = book.title
+        return cell
     }
 }
