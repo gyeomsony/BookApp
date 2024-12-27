@@ -8,16 +8,17 @@
 import Foundation
 import CoreData
 
-@objc(Book)
-public class Book: NSManagedObject {
+@objc(BookEntity)
+public class BookEntity: NSManagedObject {
     @NSManaged public var title: String?
     @NSManaged public var author: String?
     @NSManaged public var dateAdded: Date?
 }
 
-extension Book {
-    @nonobjc public class func fetchRequest() -> NSFetchRequest<Book> {
-        return NSFetchRequest<Book>(entityName: "Book")
+extension BookEntity {
+    @nonobjc public class func fetchRequest() -> NSFetchRequest<BookEntity> {
+        return NSFetchRequest<BookEntity>(entityName: "Book")
     }
 }
+
 
