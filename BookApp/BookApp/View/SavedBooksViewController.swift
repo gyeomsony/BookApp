@@ -11,7 +11,7 @@ import SnapKit
 class SavedBooksViewController: UIViewController {
     
     private let tableView = UITableView()
-    private var savedBooks: [Book] = []
+    private var savedBooks: [KakaoBook] = []
     
     private let titleLabel: UILabel = {
         let label = UILabel()
@@ -74,7 +74,15 @@ class SavedBooksViewController: UIViewController {
     }
     
     private func loadBooks() {
-        savedBooks = CoreDataManager.shared.fetchBooks()
+        let bookEntities = CoreDataManager.shared.fetchBooks()
+        savedBooks = bookEntities.map { entity in
+            KakaoBook(
+                title: entity.title ?? "",
+                authors: [entity.author ?? ""],
+                publisher: "",
+                thumbnail: nil
+            )
+        }
         tableView.reloadData()
     }
     

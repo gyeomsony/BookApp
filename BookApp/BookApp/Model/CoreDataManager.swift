@@ -39,8 +39,8 @@ final class CoreDataManager {
       }
 
       // Fetch
-      func fetchBooks() -> [Book] {
-          let request: NSFetchRequest<Book> = Book.fetchRequest()
+      func fetchBooks() -> [BookEntity] {
+          let request: NSFetchRequest<BookEntity> = BookEntity.fetchRequest()
           do {
               return try context.fetch(request)
           } catch {
@@ -51,7 +51,7 @@ final class CoreDataManager {
 
       // Add
       func addBook(title: String, author: String) {
-          let book = Book(context: context)
+          let book = BookEntity(context: context)
           book.title = title
           book.author = author
           book.dateAdded = Date()
@@ -60,7 +60,7 @@ final class CoreDataManager {
 
       // Delete All
       func deleteAllBooks() {
-          let fetchRequest: NSFetchRequest<NSFetchRequestResult> = Book.fetchRequest()
+          let fetchRequest: NSFetchRequest<NSFetchRequestResult> = BookEntity.fetchRequest()
           let deleteRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest)
           do {
               try context.execute(deleteRequest)
@@ -71,7 +71,7 @@ final class CoreDataManager {
       }
 
       // Delete One
-      func deleteBook(_ book: Book) {
+      func deleteBook(_ book: BookEntity) {
           context.delete(book)
           saveContext()
       }
