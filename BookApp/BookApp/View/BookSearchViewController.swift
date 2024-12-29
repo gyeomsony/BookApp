@@ -9,6 +9,7 @@ import SnapKit
 
 class BookSearchViewController: UIViewController, UISearchBarDelegate {
     // MARK: - Properties
+    
     private var searchBar: UISearchBar = {
         let searchBar = UISearchBar()
         searchBar.placeholder = "책 검색해보기"
@@ -22,6 +23,7 @@ class BookSearchViewController: UIViewController, UISearchBarDelegate {
     private var books: [String] = []
     
     // MARK: - Initializer
+    
     init(recentBooks: [String], searchResults: [String], books: [String]) {
         self.recentBooks = recentBooks
         self.searchResults = searchResults
@@ -36,6 +38,7 @@ class BookSearchViewController: UIViewController, UISearchBarDelegate {
     }
     
     // MARK: - Lifecycle
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
@@ -43,8 +46,8 @@ class BookSearchViewController: UIViewController, UISearchBarDelegate {
         setupNavigationBar()
         searchBar.delegate = self
     }
-    
     // MARK: - UI Setup
+    
     private func setupUI() {
         view.backgroundColor = .white
         [
@@ -72,6 +75,7 @@ class BookSearchViewController: UIViewController, UISearchBarDelegate {
     }
     
     // MARK: - TableView Setup
+    
     private func setupTableView() {
         tableView.delegate = self
         tableView.dataSource = self
@@ -80,28 +84,33 @@ class BookSearchViewController: UIViewController, UISearchBarDelegate {
     }
     
     // MARK: - Navigation Bar
+    
     private func setupNavigationBar() {
         navigationController?.isNavigationBarHidden = true
     }
     
     // MARK: - Search Bar Delegate
+    
+    // 서치바의 텍스트 변경에 따라 책 목록 필터링
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         if searchText.isEmpty {
-            searchResults = [] // 검색어가 없으면 결과 비우기
+            searchResults = []
         } else {
-            // 검색어가 있을 경우 최근 책을 필터링하여 검색 결과 업데이트
             searchResults = recentBooks.filter { $0.lowercased().contains(searchText.lowercased()) }
         }
-        tableView.reloadData() // 검색 결과 변경 후 테이블 뷰 리로드
+        tableView.reloadData()
     }
 }
 
 // MARK: - UITableViewDataSource
 extension BookSearchViewController: UITableViewDataSource {
+    
+    // 섹션 수
     func numberOfSections(in tableView: UITableView) -> Int {
-        return 2
+        return 2 // "최근 본 책"과 "검색 결과"
     }
     
+    // 섹션별 셀 수
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if section == 0 {
             return recentBooks.count
@@ -110,6 +119,7 @@ extension BookSearchViewController: UITableViewDataSource {
         }
     }
     
+    // 셀 생성
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "BookCell", for: indexPath)
         let book = indexPath.section == 0 ? recentBooks[indexPath.row] : searchResults[indexPath.row]
@@ -117,6 +127,7 @@ extension BookSearchViewController: UITableViewDataSource {
         return cell
     }
     
+    // 섹션 헤더 제목
     func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         if section == 0 {
             return "최근 본 책"
@@ -125,6 +136,7 @@ extension BookSearchViewController: UITableViewDataSource {
         }
     }
     
+    // 섹션 헤더 커스텀 (옵션)
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         let headerLabel = UILabel()
         headerLabel.text = section == 0 ? "최근 본 책" : "검색 결과"

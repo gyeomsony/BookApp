@@ -50,13 +50,18 @@ final class CoreDataManager {
       }
 
       // Add
-      func addBook(title: String, author: String) {
-          let book = BookEntity(context: context)
-          book.title = title
-          book.author = author
-          book.dateAdded = Date()
-          saveContext()
-      }
+    func addBook(title: String, author: String, image: UIImage?) {
+        let book = BookEntity(context: context)
+        book.title = title
+        book.author = author
+        book.dateAdded = Date()
+
+        if let image = image, let imageData = image.jpegData(compressionQuality: 1.0) {
+            book.imageData = imageData
+        }
+
+        saveContext()
+    }
 
       // Delete All
       func deleteAllBooks() {

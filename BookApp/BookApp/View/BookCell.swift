@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import SnapKit
 
 class BookCell: UICollectionViewCell {
     
@@ -16,16 +17,27 @@ class BookCell: UICollectionViewCell {
         return label
     }()
     
+    public var imageView: UIImageView = {
+        let image = UIImageView()
+        image.contentMode = .scaleAspectFill
+        image.clipsToBounds = true
+        return image
+    }()
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         
         contentView.backgroundColor = .lightGray
         
-        // titleLabel을 contentView에 추가해야 함
+        contentView.addSubview(imageView)
         contentView.addSubview(titleLabel)
         
         titleLabel.snp.makeConstraints {
-            $0.edges.equalToSuperview().inset(10)
+            $0.top.equalTo(imageView.snp.bottom).offset(10)
+        }
+        
+        imageView.snp.makeConstraints {
+            $0.centerY.equalToSuperview()
         }
     }
     
@@ -33,4 +45,5 @@ class BookCell: UICollectionViewCell {
         fatalError("init(coder:) has not been implemented")
     }
 }
+
 

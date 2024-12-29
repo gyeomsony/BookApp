@@ -13,6 +13,7 @@ public class BookEntity: NSManagedObject {
     @NSManaged public var title: String?
     @NSManaged public var author: String?
     @NSManaged public var dateAdded: Date?
+    @NSManaged public var imageData: Data?
 }
 
 extension BookEntity {
