@@ -79,8 +79,10 @@ class SavedBooksViewController: UIViewController {
             KakaoBook(
                 title: entity.title ?? "",
                 authors: [entity.author ?? ""],
-                publisher: "",
-                thumbnail: nil
+                publisher: entity.publisher ?? "", // CoreData에 'publisher'가 저장되어 있다면 사용
+                thumbnail: entity.thumbnail ?? "", // CoreData에 'thumbnail'이 저장되어 있다면 사용
+                description: entity.bookDescription ?? "",
+                price: Int(entity.price ?? "") // String을 Int?로 변환
             )
         }
         tableView.reloadData()

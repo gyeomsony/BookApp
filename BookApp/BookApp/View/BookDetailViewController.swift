@@ -10,6 +10,8 @@ import SnapKit
 
 class BookDetailViewController: UIViewController {
     
+    var book: KakaoBook?
+    
     private let scrollView = UIScrollView() // 스크롤 뷰
     private let contentView = UIView()
     
@@ -34,9 +36,11 @@ class BookDetailViewController: UIViewController {
     private let bookImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.backgroundColor = .lightGray
-        imageView.contentMode = .scaleAspectFit
+        imageView.contentMode = .scaleAspectFill
         imageView.layer.masksToBounds = true
         imageView.layer.cornerRadius = 15
+        imageView.layer.borderWidth = 1
+        imageView.layer.borderColor = UIColor.lightGray.withAlphaComponent(0.3).cgColor
         return imageView
     }()
     
@@ -51,17 +55,7 @@ class BookDetailViewController: UIViewController {
     private let descriptionLabel: UILabel = {
         let label = UILabel()
         label.numberOfLines = 7
-        label.text = """
-어느 날 갑자기 출현한 정체불명의 식인종 거인들에 의해 인류의 태반이 잡아 먹히며 인류는 절멸 위기에 처한다.
-목숨을 부지한 생존자들은 높이 50m의 거대한 삼중의 방벽 월 마리아, 월 로제, 월 시나를 건설하여 그 곳으로 도피, 방벽 내부에서 100여 년에 걸쳐 평화의 시대를 영위하게 된다.
-그리고 100여 년이 지난 845년, 대부분 주민들이 오래도록 지속되어 온 평화에 안주하는 반면, 주인공 엘런 예거는 사람들이 거인들에게 둘러싸여 벽 안에서 가축같이 살아가는 세계에 커다란 불만을 느낀다. 그는 벽 밖의 세계로 나가서 세계를 자유롭게 누비며 탐험하는 것을 열망한다. 
-어느 날 갑자기 출현한 정체불명의 식인종 거인들에 의해 인류의 태반이 잡아 먹히며 인류는 절멸 위기에 처한다.
-목숨을 부지한 생존자들은 높이 50m의 거대한 삼중의 방벽 월 마리아, 월 로제, 월 시나를 건설하여 그 곳으로 도피, 방벽 내부에서 100여 년에 걸쳐 평화의 시대를 영위하게 된다.
-그리고 100여 년이 지난 845년, 대부분 주민들이 오래도록 지속되어 온 평화에 안주하는 반면, 주인공 엘런 예거는 사람들이 거인들에게 둘러싸여 벽 안에서 가축같이 살아가는 세계에 커다란 불만을 느낀다. 그는 벽 밖의 세계로 나가서 세계를 자유롭게 누비며 탐험하는 것을 열망한다. 
-어느 날 갑자기 출현한 정체불명의 식인종 거인들에 의해 인류의 태반이 잡아 먹히며 인류는 절멸 위기에 처한다.
-목숨을 부지한 생존자들은 높이 50m의 거대한 삼중의 방벽 월 마리아, 월 로제, 월 시나를 건설하여 그 곳으로 도피, 방벽 내부에서 100여 년에 걸쳐 평화의 시대를 영위하게 된다.
-그리고 100여 년이 지난 845년, 대부분 주민들이 오래도록 지속되어 온 평화에 안주하는 반면, 주인공 엘런 예거는 사람들이 거인들에게 둘러싸여 벽 안에서 가축같이 살아가는 세계에 커다란 불만을 느낀다. 그는 벽 밖의 세계로 나가서 세계를 자유롭게 누비며 탐험하는 것을 열망한다. 
-"""
+        label.text = "설명 없음"
         label.font = .systemFont(ofSize: 13)
         label.textColor = .black
         label.lineBreakMode = .byTruncatingTail
@@ -105,7 +99,6 @@ class BookDetailViewController: UIViewController {
         return stackView
     }()
     
-    
     private var isExpanded = false // 텍스트 확장 여부 확인
     
     override func viewDidLoad() {
@@ -113,6 +106,7 @@ class BookDetailViewController: UIViewController {
         view.backgroundColor = .white
         setupUI()
         setupActions()
+        populateUI() // 실제 데이터
     }
     
     private func setupUI() {
@@ -154,8 +148,8 @@ class BookDetailViewController: UIViewController {
         bookImageView.snp.makeConstraints {
             $0.top.equalTo(authorLabel.snp.bottom).offset(20)
             $0.centerX.equalToSuperview()
-            $0.height.equalTo(300)
-            $0.width.equalTo(200)
+            $0.height.equalTo(420)
+            $0.width.equalTo(300)
         }
         
         priceLabel.snp.makeConstraints {
@@ -224,4 +218,49 @@ class BookDetailViewController: UIViewController {
     private func addBook() {
         print("책이 장바구니에 추가되었습니다.")
     }
+    
+    private func populateUI() {
+        guard let book = book else { return }
+        
+        titleLabel.text = book.title
+        authorLabel.text = "저자: " + book.authors.joined(separator: ", ")
+        
+        if let price = book.price {
+            let formatter = NumberFormatter()
+            formatter.numberStyle = .decimal
+            priceLabel.text = "가격: \(formatter.string(from: NSNumber(value: price)) ?? "정보 없음")"
+        } else {
+            priceLabel.text = "가격: 정보 없음"
+        }
+        
+        descriptionLabel.text = book.description?.isEmpty == false ? book.description : "설명 없음"
+        
+        // 썸네일 이미지 로딩
+        if let thumbnailURL = book.thumbnail, let url = URL(string: thumbnailURL) {
+            loadImage(from: url)
+        }
+    }
+    
+    private func loadImage(from url: URL) {
+        // 비동기적으로 이미지를 다운로드하여 UIImageView에 설정
+        let task = URLSession.shared.dataTask(with: url) { [weak self] data, response, error in
+            if let error = error {
+                print("이미지 로딩 실패: \(error.localizedDescription)")
+                return
+            }
+            
+            if let data = data, let image = UIImage(data: data) {
+                DispatchQueue.main.async {
+                    self?.bookImageView.image = image
+                }
+            } else {
+                DispatchQueue.main.async {
+                    self?.bookImageView.image = UIImage(named: "defaultImage") // 기본 이미지
+                }
+            }
+        }
+        
+        task.resume()
+    }
 }
+

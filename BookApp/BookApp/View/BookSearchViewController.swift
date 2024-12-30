@@ -6,9 +6,11 @@
 
 import UIKit
 import SnapKit
+import RxSwift
 
 class BookSearchViewController: UIViewController, UISearchBarDelegate {
     // MARK: - Properties
+    var book: KakaoBook?
     
     private var searchBar: UISearchBar = {
         let searchBar = UISearchBar()
@@ -17,19 +19,17 @@ class BookSearchViewController: UIViewController, UISearchBarDelegate {
         return searchBar
     }()
     
-    private let tableView: UITableView
-    private var recentBooks: [String]
-    private var searchResults: [String]
-    private var books: [String] = []
+    private var tableView = UITableView()
+    private var recentBooks: [KakaoBook]
+    private var searchResults: [KakaoBook] = []
+    private var books: [KakaoBook]
+    private let disposeBag = DisposeBag()
     
     // MARK: - Initializer
-    
-    init(recentBooks: [String], searchResults: [String], books: [String]) {
+    init(recentBooks: [KakaoBook], books: [KakaoBook]) {
         self.recentBooks = recentBooks
-        self.searchResults = searchResults
         self.books = books
         self.tableView = UITableView()
-        
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -38,23 +38,31 @@ class BookSearchViewController: UIViewController, UISearchBarDelegate {
     }
     
     // MARK: - Lifecycle
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
         setupTableView()
         setupNavigationBar()
         searchBar.delegate = self
+        
+        searchBar.text = "세이노"
+        searchBar.becomeFirstResponder()
     }
-    // MARK: - UI Setup
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        navigationController?.setNavigationBarHidden(true, animated: animated)
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        navigationController?.setNavigationBarHidden(false, animated: animated)
+    }
+    
+    // MARK: - UI Setup
     private func setupUI() {
         view.backgroundColor = .white
-        [
-            searchBar,
-            tableView
-        ].forEach { view.addSubview($0) }
-        
+        [searchBar, tableView].forEach { view.addSubview($0) }
         setupSearchBarConstraints()
         setupTableViewConstraints()
     }
@@ -62,7 +70,7 @@ class BookSearchViewController: UIViewController, UISearchBarDelegate {
     private func setupSearchBarConstraints() {
         searchBar.snp.makeConstraints {
             $0.top.equalToSuperview().offset(70)
-            $0.left.right.equalToSuperview()
+            $0.leading.trailing.equalToSuperview()
             $0.height.equalTo(50)
         }
     }
@@ -70,11 +78,9 @@ class BookSearchViewController: UIViewController, UISearchBarDelegate {
     private func setupTableViewConstraints() {
         tableView.snp.makeConstraints {
             $0.top.equalTo(searchBar.snp.bottom)
-            $0.left.right.bottom.equalToSuperview()
+            $0.leading.trailing.bottom.equalToSuperview()
         }
     }
-    
-    // MARK: - TableView Setup
     
     private func setupTableView() {
         tableView.delegate = self
@@ -83,66 +89,81 @@ class BookSearchViewController: UIViewController, UISearchBarDelegate {
         tableView.rowHeight = 60
     }
     
-    // MARK: - Navigation Bar
-    
     private func setupNavigationBar() {
         navigationController?.isNavigationBarHidden = true
     }
     
     // MARK: - Search Bar Delegate
-    
-    // 서치바의 텍스트 변경에 따라 책 목록 필터링
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        if searchText.isEmpty {
+        print("Search text changed: \(searchText)")
+        
+        // 텍스트가 비었을 경우
+        guard !searchText.isEmpty else {
             searchResults = []
-        } else {
-            searchResults = recentBooks.filter { $0.lowercased().contains(searchText.lowercased()) }
+            tableView.reloadData()
+            return
         }
-        tableView.reloadData()
+        
+        // KakaoBook 객체에서 title을 기준으로 필터링
+        searchResults = books.filter { book in
+            return book.title.lowercased().contains(searchText.lowercased())  // 대소문자 구분 없이 검색
+        }
+        
+        // 일정 길이 이상의 텍스트일 경우 API 호출
+        if searchText.count >= 2 {
+            APIManager.shared.fetchBooks(query: searchText)
+                .observe(on: MainScheduler.instance)
+                .subscribe(onSuccess: { [weak self] books in
+                    print("Fetched books: \(books)")
+                    // 실제 API에서 받은 데이터를 업데이트
+                    self?.searchResults = books
+                    self?.tableView.reloadData()
+                }, onFailure: { error in
+                    print("Error fetching books: \(error.localizedDescription)")
+                })
+                .disposed(by: disposeBag)
+        } else {
+            // 검색어 길이가 짧을 경우 로컬 필터링된 결과만 표시
+            tableView.reloadData()
+        }
     }
 }
 
 // MARK: - UITableViewDataSource
 extension BookSearchViewController: UITableViewDataSource {
-    
-    // 섹션 수
     func numberOfSections(in tableView: UITableView) -> Int {
-        return 2 // "최근 본 책"과 "검색 결과"
+        return 2  // 두 개의 섹션: 최근 본 책, 검색 결과
     }
     
-    // 섹션별 셀 수
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        if section == 0 {
-            return recentBooks.count
-        } else {
-            return searchResults.count
-        }
+        return section == 0 ? recentBooks.count : searchResults.count
     }
     
-    // 셀 생성
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "BookCell", for: indexPath)
-        let book = indexPath.section == 0 ? recentBooks[indexPath.row] : searchResults[indexPath.row]
-        cell.textLabel?.text = book
+        cell.textLabel?.font = .systemFont(ofSize: 15)
+        
+        if indexPath.section == 0 {
+            // 최근 본 책은 KakaoBook 배열을 사용해야 하므로, title을 표시
+            let book = recentBooks[indexPath.row]
+            cell.textLabel?.text = book.title
+        } else {
+            // 검색 결과
+            guard indexPath.row < searchResults.count else {
+                // 인덱스가 범위를 벗어난 경우
+                return cell
+            }
+            let book = searchResults[indexPath.row]
+            cell.textLabel?.text = book.title
+            cell.detailTextLabel?.text = book.authors.joined(separator: ", ")
+        }
+        
         return cell
     }
-    
-    // 섹션 헤더 제목
+
+
     func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-        if section == 0 {
-            return "최근 본 책"
-        } else {
-            return "검색 결과"
-        }
-    }
-    
-    // 섹션 헤더 커스텀 (옵션)
-    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        let headerLabel = UILabel()
-        headerLabel.text = section == 0 ? "최근 본 책" : "검색 결과"
-        headerLabel.font = UIFont.boldSystemFont(ofSize: 18)
-        headerLabel.backgroundColor = .white
-        return headerLabel
+        return section == 0 ? "최근 본 책" : "검색 결과"
     }
 }
 
@@ -150,11 +171,18 @@ extension BookSearchViewController: UITableViewDataSource {
 extension BookSearchViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        let selectedBook = indexPath.section == 0 ? recentBooks[indexPath.row] : searchResults[indexPath.row]
-        print("\(selectedBook)을 선택함")
-        
         let bookDetailVC = BookDetailViewController()
+        
+        if indexPath.section == 0 {
+            let selectedBook = recentBooks[indexPath.row] // KakaoBook 객체
+            bookDetailVC.book = selectedBook // KakaoBook 객체를 전달
+        } else {
+            let selectedBook = searchResults[indexPath.row]
+            bookDetailVC.book = selectedBook
+        }
+        
         bookDetailVC.modalPresentationStyle = .formSheet
         present(bookDetailVC, animated: true, completion: nil)
     }
 }
+

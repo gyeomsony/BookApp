@@ -13,12 +13,21 @@ class MainTabBarController: UITabBarController {
         super.viewDidLoad()
         
         // 더미 데이터
-        let recentBooks = ["Book 1", "Book 2", "Book 3"]
-        let searchResults = ["Search Book 1", "Search Book 2"]
-        let books = ["Book 1", "Book 2", "Book 3", "Book 4"]
+        let recentBooks = [
+            KakaoBook(title: "Book 1", authors: ["Author 1"]),
+            KakaoBook(title: "Book 2", authors: ["Author 2"]),
+            KakaoBook(title: "Book 3", authors: ["Author 3"])
+        ]
+        
+        let books = [
+            KakaoBook(title: "Book 1", authors: ["Author 1"]),
+            KakaoBook(title: "Book 2", authors: ["Author 2"]),
+            KakaoBook(title: "Book 3", authors: ["Author 3"]),
+            KakaoBook(title: "Book 4", authors: ["Author 4"])
+        ]
         
         // 책 검색 화면
-        let bookSearchVC = BookSearchViewController(recentBooks: recentBooks, searchResults: searchResults, books: books)
+        let bookSearchVC = BookSearchViewController(recentBooks: recentBooks, books: books)
         let searchNavigationController = UINavigationController(rootViewController: bookSearchVC)
         searchNavigationController.tabBarItem = UITabBarItem(title: "검색",
                                                              image: UIImage(systemName: "magnifyingglass"),
