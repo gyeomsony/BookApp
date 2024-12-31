@@ -217,7 +217,8 @@ class BookDetailViewController: UIViewController {
             bookTitle: book?.title ?? "제목 없음",
             bookAuthor: book?.authors.first ?? "알수 없음",
             bookDescription: book?.contents ?? "설명 없음",
-            bookImage: nil
+            bookImage: nil,
+            bookPrice: book?.price ?? 0
         )
     }
     
