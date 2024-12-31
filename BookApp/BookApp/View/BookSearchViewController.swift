@@ -20,16 +20,14 @@ class BookSearchViewController: UIViewController, UISearchBarDelegate {
     }()
     
     private var tableView = UITableView()
-    private var recentBooks: [KakaoBook]
-    private var searchResults: [KakaoBook] = []
-    private var books: [KakaoBook]
+    private var recentBooks: [KakaoBook] = [] // 최근 본 책
+    private var searchResults: [KakaoBook] = [] // 검색 결과
     private let disposeBag = DisposeBag()
+
     
     // MARK: - Initializer
     init(recentBooks: [KakaoBook], books: [KakaoBook]) {
         self.recentBooks = recentBooks
-        self.books = books
-        self.tableView = UITableView()
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -62,7 +60,10 @@ class BookSearchViewController: UIViewController, UISearchBarDelegate {
     // MARK: - UI Setup
     private func setupUI() {
         view.backgroundColor = .white
-        [searchBar, tableView].forEach { view.addSubview($0) }
+        [
+            searchBar, tableView
+        ].forEach { view.addSubview($0) }
+        
         setupSearchBarConstraints()
         setupTableViewConstraints()
     }
@@ -104,30 +105,28 @@ class BookSearchViewController: UIViewController, UISearchBarDelegate {
             return
         }
         
-        // KakaoBook 객체에서 title을 기준으로 필터링
-        searchResults = books.filter { book in
-            return book.title.lowercased().contains(searchText.lowercased())  // 대소문자 구분 없이 검색
-        }
-        
         // 일정 길이 이상의 텍스트일 경우 API 호출
         if searchText.count >= 2 {
             APIManager.shared.fetchBooks(query: searchText)
                 .observe(on: MainScheduler.instance)
                 .subscribe(onSuccess: { [weak self] books in
+                    guard let self = self else { return }
                     print("Fetched books: \(books)")
+                    
                     // 실제 API에서 받은 데이터를 업데이트
-                    self?.searchResults = books
-                    self?.tableView.reloadData()
+                    self.searchResults = books
+                    self.tableView.reloadData()
                 }, onFailure: { error in
                     print("Error fetching books: \(error.localizedDescription)")
                 })
                 .disposed(by: disposeBag)
         } else {
-            // 검색어 길이가 짧을 경우 로컬 필터링된 결과만 표시
+            searchResults = []
             tableView.reloadData()
+            }
         }
     }
-}
+
 
 // MARK: - UITableViewDataSource
 extension BookSearchViewController: UITableViewDataSource {

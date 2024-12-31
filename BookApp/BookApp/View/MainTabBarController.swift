@@ -12,19 +12,8 @@ class MainTabBarController: UITabBarController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        // 더미 데이터
-        let recentBooks = [
-            KakaoBook(title: "Book 1", authors: ["Author 1"]),
-            KakaoBook(title: "Book 2", authors: ["Author 2"]),
-            KakaoBook(title: "Book 3", authors: ["Author 3"])
-        ]
-        
-        let books = [
-            KakaoBook(title: "Book 1", authors: ["Author 1"]),
-            KakaoBook(title: "Book 2", authors: ["Author 2"]),
-            KakaoBook(title: "Book 3", authors: ["Author 3"]),
-            KakaoBook(title: "Book 4", authors: ["Author 4"])
-        ]
+        let recentBooks: [KakaoBook] = []  // 예시 데이터
+        let books: [KakaoBook] = []        // 예시 데이터
         
         // 책 검색 화면
         let bookSearchVC = BookSearchViewController(recentBooks: recentBooks, books: books)

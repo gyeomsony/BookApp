@@ -28,10 +28,9 @@ class SavedBooksViewModel {
             KakaoBook(
                 title: entity.title ?? "",
                 authors: [entity.author ?? ""],
-                publisher: entity.publisher ?? "",
-                thumbnail: entity.thumbnail ?? "",
+                price: Int(entity.price),
                 contents: entity.contents ?? "",
-                price: Int(entity.price)
+                thumbnail: entity.thumbnail ?? ""
             )
         }
         savedBooks.accept(books)

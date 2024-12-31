@@ -9,32 +9,24 @@ import Foundation
 
 struct KakaoBookResponse: Codable {
     let documents: [KakaoBook]
-    let meta: Meta
 }
 
 struct KakaoBook: Codable {
     let title: String
     let authors: [String]
-    let publisher: String?
-    let thumbnail: String?
-    let contents: String?
     let price: Int?
+    let contents: String?
+    let thumbnail: String?
     
-    init(title: String, authors: [String], publisher: String? = nil, thumbnail: String? = nil, contents: String? = nil, price: Int? = nil) {
+    init(title: String, authors: [String], price: Int?, contents: String?, thumbnail: String?) {
         self.title = title
         self.authors = authors
-        self.publisher = publisher
-        self.thumbnail = thumbnail
-        self.contents = contents
         self.price = price
+        self.contents = contents
+        self.thumbnail = thumbnail
     }
 }
 
-struct Meta: Codable {
-    let total_count: Int
-    let pageable_count: Int
-    let is_end: Bool
-}
 
 
 
