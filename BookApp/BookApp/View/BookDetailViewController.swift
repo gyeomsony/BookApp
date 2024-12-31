@@ -230,7 +230,7 @@ class BookDetailViewController: UIViewController {
     private func addBook() {
         // 코어데이터 책 추가
         guard let book = book else { return }
-        CoreDataManager.shared.addBook(title: book.title, author: book.authors.first ?? "모름", image: nil)
+        CoreDataManager.shared.addBook(title: book.title, author: book.authors.first ?? "모름", image: nil, price: book.price ?? 0)
         
         // 장바구니 화면 이동
         let savedBooksVC = SavedBooksViewController()

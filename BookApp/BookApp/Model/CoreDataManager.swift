@@ -50,11 +50,12 @@ final class CoreDataManager {
       }
 
       // Add
-    func addBook(title: String, author: String, image: UIImage?) {
+    func addBook(title: String, author: String, image: UIImage?, price: Int) {
         let book = BookEntity(context: context)
         book.title = title
         book.author = author
         book.dateAdded = Date()
+        book.price = price
 
         if let image = image, let imageData = image.jpegData(compressionQuality: 1.0) {
             book.imageData = imageData

@@ -6,7 +6,11 @@
 //
 
 import UIKit
+import RxSwift
 
-class BookSearchViewModel: UIView {
-    
+class BookSearchViewModel {
+//    private let coreDataManager: CoreDataManager
+//    private let disposeBag = DisposeBag()
+//    
+//    let searchQuery = BehaviorRelay<String>(value: "")
 }

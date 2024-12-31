@@ -7,11 +7,14 @@
 
 import UIKit
 import SnapKit
+import RxSwift
 
 class SavedBooksViewController: UIViewController {
     
     private let tableView = UITableView()
-    private var savedBooks: [KakaoBook] = []
+    private let disposeBag = DisposeBag()
+    private let viewModel = SavedBooksViewModel(coreDataManager: CoreDataManager.shared,
+                                                apiManager: APIManager.shared)
     
     private let titleLabel: UILabel = {
         let label = UILabel()
@@ -33,7 +36,7 @@ class SavedBooksViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .white
         setupUI()
-        loadBooks()
+        
     }
     
     private func setupUI() {
@@ -70,40 +73,30 @@ class SavedBooksViewController: UIViewController {
         
         // 버튼 액션
         deleteAllButton.addAction(UIAction(handler: { [weak self] _ in
-            self?.deleteAllBooks()
+            self?.viewModel.deleteAllBooks()
         }), for: .touchUpInside)
     }
     
-    private func loadBooks() {
-        let bookEntities = CoreDataManager.shared.fetchBooks()
-        savedBooks = bookEntities.map { entity in
-            KakaoBook(
-                title: entity.title ?? "",
-                authors: [entity.author ?? ""],
-                publisher: entity.publisher ?? "",
-                thumbnail: entity.thumbnail ?? "",
-                contents: entity.bookDescription ?? "",
-                price: Int(entity.price ?? "")
-            )
+    private func bindViewModel() {
+        viewModel.savedBooks
+            .observe(on: MainScheduler.instance)
+            .subscribe(onNext: { [weak self] books in
+                self?.tableView.reloadData()
+            })
+            .disposed(by: DisposeBag())
+    }
+}
+    
+    extension SavedBooksViewController: UITableViewDataSource, UITableViewDelegate {
+        func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+            return viewModel.savedBooks.value.count
         }
-        tableView.reloadData()
+        
+        func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+            let cell = tableView.dequeueReusableCell(withIdentifier: "BookCell", for: indexPath)
+            let book = viewModel.savedBooks.value[indexPath.row]
+            cell.textLabel?.text = book.title
+            return cell
+        }
     }
-    
-    @objc private func deleteAllBooks() {
-        CoreDataManager.shared.deleteAllBooks()
-        loadBooks()
-    }
-}
 
-extension SavedBooksViewController: UITableViewDataSource, UITableViewDelegate {
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return savedBooks.count
-    }
-    
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "BookCell", for: indexPath)
-        let book = savedBooks[indexPath.row]
-        cell.textLabel?.text = book.title
-        return cell
-    }
-}
