@@ -17,15 +17,15 @@ struct KakaoBook: Codable {
     let authors: [String]
     let publisher: String?
     let thumbnail: String?
-    let description: String?
-    let price: Int?  // price를 Int?로 변경
+    let contents: String?
+    let price: Int?
     
-    init(title: String, authors: [String], publisher: String? = nil, thumbnail: String? = nil, description: String? = nil, price: Int? = nil) {
+    init(title: String, authors: [String], publisher: String? = nil, thumbnail: String? = nil, contents: String? = nil, price: Int? = nil) {
         self.title = title
         self.authors = authors
         self.publisher = publisher
         self.thumbnail = thumbnail
-        self.description = description
+        self.contents = contents
         self.price = price
     }
 }

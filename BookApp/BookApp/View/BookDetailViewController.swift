@@ -12,6 +12,7 @@ class BookDetailViewController: UIViewController {
     
     var book: KakaoBook?
     
+    private var viewModel: BookDetailViewModel!
     private let scrollView = UIScrollView() // 스크롤 뷰
     private let contentView = UIView()
     
@@ -104,6 +105,7 @@ class BookDetailViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
+        setupViewModel()
         setupUI()
         setupActions()
         populateUI() // 실제 데이터
@@ -209,6 +211,16 @@ class BookDetailViewController: UIViewController {
         }), for: .touchUpInside)
     }
     
+    private func setupViewModel() {
+        viewModel = BookDetailViewModel(
+            coreDataManager: CoreDataManager.shared,
+            bookTitle: book?.title ?? "제목 없음",
+            bookAuthor: book?.authors.first ?? "알수 없음",
+            bookDescription: book?.contents ?? "설명 없음",
+            bookImage: nil
+        )
+    }
+    
     private func toggleDescription() {
         isExpanded.toggle()
         descriptionLabel.numberOfLines = isExpanded ? 0 : 7 // 삼항연산자 활용
@@ -216,7 +228,15 @@ class BookDetailViewController: UIViewController {
     }
     
     private func addBook() {
-        print("책이 장바구니에 추가되었습니다.")
+        // 코어데이터 책 추가
+        guard let book = book else { return }
+        CoreDataManager.shared.addBook(title: book.title, author: book.authors.first ?? "모름", image: nil)
+        
+        // 장바구니 화면 이동
+        let savedBooksVC = SavedBooksViewController()
+        navigationController?.pushViewController(savedBooksVC, animated: true)
+        
+        print("책이 담겼습니다.")
     }
     
     private func populateUI() {
@@ -233,7 +253,7 @@ class BookDetailViewController: UIViewController {
             priceLabel.text = "가격: 정보 없음"
         }
         
-        descriptionLabel.text = book.description?.isEmpty == false ? book.description : "설명 없음"
+        descriptionLabel.text = book.contents?.isEmpty == false ? book.contents : "설명 없음"
         
         // 썸네일 이미지 로딩
         if let thumbnailURL = book.thumbnail, let url = URL(string: thumbnailURL) {

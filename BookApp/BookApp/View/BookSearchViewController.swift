@@ -45,7 +45,7 @@ class BookSearchViewController: UIViewController, UISearchBarDelegate {
         setupNavigationBar()
         searchBar.delegate = self
         
-        searchBar.text = "세이노"
+        searchBar.text = "검색해보자~"
         searchBar.becomeFirstResponder()
     }
     
@@ -132,7 +132,7 @@ class BookSearchViewController: UIViewController, UISearchBarDelegate {
 // MARK: - UITableViewDataSource
 extension BookSearchViewController: UITableViewDataSource {
     func numberOfSections(in tableView: UITableView) -> Int {
-        return 2  // 두 개의 섹션: 최근 본 책, 검색 결과
+        return 2
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -174,8 +174,8 @@ extension BookSearchViewController: UITableViewDelegate {
         let bookDetailVC = BookDetailViewController()
         
         if indexPath.section == 0 {
-            let selectedBook = recentBooks[indexPath.row] // KakaoBook 객체
-            bookDetailVC.book = selectedBook // KakaoBook 객체를 전달
+            let selectedBook = recentBooks[indexPath.row]
+            bookDetailVC.book = selectedBook
         } else {
             let selectedBook = searchResults[indexPath.row]
             bookDetailVC.book = selectedBook
