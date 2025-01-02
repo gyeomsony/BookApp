@@ -1,0 +1,29 @@
+//
+//  Book+CoreDataClass.swift
+//  BookApp
+//
+//  Created by 손겸 on 12/31/24.
+//
+//
+
+import Foundation
+import CoreData
+
+@objc(BookEntity)
+public class BookEntity: NSManagedObject {
+    @NSManaged public var title: String?
+    @NSManaged public var author: String?
+    @NSManaged public var publisher: String?
+    @NSManaged public var price: Int
+    @NSManaged public var contents: String?
+    @NSManaged public var thumbnail: String?
+    @NSManaged public var dateAdded: Date?
+    @NSManaged public var imageData: Data?
+    
+}
+
+extension BookEntity {
+    @nonobjc public class func fetchRequest() -> NSFetchRequest<BookEntity> {
+        return NSFetchRequest<BookEntity>(entityName: "Book")
+    }
+}

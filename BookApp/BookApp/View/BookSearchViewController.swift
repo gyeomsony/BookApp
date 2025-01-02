@@ -40,21 +40,22 @@ class BookSearchViewController: UIViewController, UISearchBarDelegate {
         super.viewDidLoad()
         setupUI()
         setupTableView()
-        setupNavigationBar()
         searchBar.delegate = self
         
-        searchBar.text = "검색해보자~"
+//        searchBar.text = "검색해보자~"
         searchBar.becomeFirstResponder()
+        searchBar.autocapitalizationType = .none
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        navigationController?.setNavigationBarHidden(true, animated: animated)
+        setupNavigationBar()
+        //navigationController?.setNavigationBarHidden(true, animated: animated)
     }
 
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        navigationController?.setNavigationBarHidden(false, animated: animated)
+        //navigationController?.setNavigationBarHidden(false, animated: animated)
     }
     
     // MARK: - UI Setup
@@ -70,7 +71,7 @@ class BookSearchViewController: UIViewController, UISearchBarDelegate {
     
     private func setupSearchBarConstraints() {
         searchBar.snp.makeConstraints {
-            $0.top.equalToSuperview().offset(70)
+            $0.top.equalTo(view.safeAreaLayoutGuide)
             $0.leading.trailing.equalToSuperview()
             $0.height.equalTo(50)
         }
