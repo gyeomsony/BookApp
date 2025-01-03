@@ -9,8 +9,8 @@ import UIKit
 import RxSwift
 
 class BookSearchViewModel {
-//    private let coreDataManager: CoreDataManager
-//    private let disposeBag = DisposeBag()
-//    
-//    let searchQuery = BehaviorRelay<String>(value: "")
+    private let coreDataManager: CoreDataManager
+    private let disposeBag = DisposeBag()
+    
+    let searchQuery = BehaviorRelay<String>(value: "")
 }
