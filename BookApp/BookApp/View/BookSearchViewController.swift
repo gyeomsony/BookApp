@@ -10,39 +10,41 @@ import RxSwift
 
 class BookSearchViewController: UIViewController, UISearchBarDelegate {
     // MARK: - Properties
-    var book: KakaoBook?
-    
+    var viewModel: BookSearchViewModel
+    var coreDataManager: CoreDataManager
+
     private var searchBar: UISearchBar = {
         let searchBar = UISearchBar()
         searchBar.placeholder = "책 검색해보기"
         searchBar.sizeToFit()
         return searchBar
     }()
-    
+
     private var tableView = UITableView()
     private var recentBooks: [KakaoBook] = [] // 최근 본 책
     private var searchResults: [KakaoBook] = [] // 검색 결과
     private let disposeBag = DisposeBag()
 
-    
     // MARK: - Initializer
-    init(recentBooks: [KakaoBook], books: [KakaoBook]) {
-        self.recentBooks = recentBooks
-        super.init(nibName: nil, bundle: nil)
-    }
-    
+    init(viewModel: BookSearchViewModel, coreDataManager: CoreDataManager) {
+           self.viewModel = viewModel
+           self.coreDataManager = coreDataManager
+           super.init(nibName: nil, bundle: nil)
+       }
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
         setupTableView()
-        searchBar.delegate = self
+        searchBar.delegate = self  // UISearchBarDelegate 설정
+        setupBindings()
         
-//        searchBar.text = "검색해보자~"
+        // searchBar.text = "검색해보자~"
         searchBar.becomeFirstResponder()
         searchBar.autocapitalizationType = .none
     }
@@ -52,7 +54,7 @@ class BookSearchViewController: UIViewController, UISearchBarDelegate {
         setupNavigationBar()
         //navigationController?.setNavigationBarHidden(true, animated: animated)
     }
-
+    
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         //navigationController?.setNavigationBarHidden(false, animated: animated)
@@ -95,6 +97,28 @@ class BookSearchViewController: UIViewController, UISearchBarDelegate {
         navigationController?.isNavigationBarHidden = true
     }
     
+    private func setupBindings() {
+        // Search Bar 텍스트를 ViewModel의 searchQuery에 바인딩
+        searchBar.rx.text.orEmpty
+            .bind(to: viewModel.searchQuery)
+            .disposed(by: disposeBag)
+        
+        // ViewModel의 searchResults를 TableView와 바인딩
+        viewModel.searchResults
+            .bind(to: tableView.rx.items(cellIdentifier: "BookCell")) { index, book, cell in
+                cell.textLabel?.text = book.title
+                cell.detailTextLabel?.text = book.authors.joined(separator: ", ")
+            }
+            .disposed(by: disposeBag)
+        
+        // 최근 본 책을 ViewModel의 recentBooks와 바인딩
+        viewModel.recentBooks
+            .subscribe(onNext: { [weak self] _ in
+                self?.tableView.reloadData()
+            })
+            .disposed(by: disposeBag)
+    }
+    
     // MARK: - Search Bar Delegate
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         print("Search text changed: \(searchText)")
@@ -124,9 +148,9 @@ class BookSearchViewController: UIViewController, UISearchBarDelegate {
         } else {
             searchResults = []
             tableView.reloadData()
-            }
         }
     }
+}
 
 
 // MARK: - UITableViewDataSource
@@ -160,8 +184,8 @@ extension BookSearchViewController: UITableViewDataSource {
         
         return cell
     }
-
-
+    
+    
     func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         return section == 0 ? "최근 본 책" : "검색 결과"
     }

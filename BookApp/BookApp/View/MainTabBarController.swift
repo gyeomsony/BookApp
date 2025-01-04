@@ -12,11 +12,12 @@ class MainTabBarController: UITabBarController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        let recentBooks: [KakaoBook] = []  // 예시 데이터
-        let books: [KakaoBook] = []        // 예시 데이터
+        // CoreDataManager 인스턴스를 생성
+        let coreDataManager = CoreDataManager.shared  // CoreDataManager 싱글톤
+        let viewModel = BookSearchViewModel() // ViewModel 초기화
         
         // 책 검색 화면
-        let bookSearchVC = BookSearchViewController(recentBooks: recentBooks, books: books)
+        let bookSearchVC = BookSearchViewController(viewModel: viewModel, coreDataManager: coreDataManager)
         let searchNavigationController = UINavigationController(rootViewController: bookSearchVC)
         searchNavigationController.tabBarItem = UITabBarItem(title: "검색",
                                                              image: UIImage(systemName: "magnifyingglass"),
@@ -33,6 +34,7 @@ class MainTabBarController: UITabBarController {
         viewControllers = [searchNavigationController, savedNavigationController]
     }
 }
+
 
 
 

@@ -13,7 +13,7 @@ public class BookEntity: NSManagedObject {
     @NSManaged public var title: String?
     @NSManaged public var author: String?
     @NSManaged public var publisher: String?
-    @NSManaged public var price: Int
+    @NSManaged public var price: Int32
     @NSManaged public var contents: String?
     @NSManaged public var thumbnail: String?
     @NSManaged public var dateAdded: Date?

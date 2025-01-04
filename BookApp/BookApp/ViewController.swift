@@ -12,6 +12,9 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        // CoreDataManager 싱글톤 초기화
+        let coreDataManager = CoreDataManager.shared
+        
         // MainTabBarController를 루트로 설정
         let tabBarController = MainTabBarController()
         
