@@ -286,3 +286,12 @@ class BookDetailViewController: UIViewController {
     }
 }
 
+extension KakaoBook {
+    init(entity: BookEntity) {
+        self.title = entity.title ?? "제목 없음"
+        self.authors = entity.author?.components(separatedBy: ", ") ?? []
+        self.thumbnail = entity.imageData != nil ? UIImage(data: entity.imageData!) : nil
+        self.price = Int(entity.price)
+    }
+}
+

@@ -24,7 +24,7 @@ class MainTabBarController: UITabBarController {
                                                            tag: 0)
         
         // 담은 책 리스트 화면
-        let savedBooksViewModel = SavedBooksViewModel(coreDataManager: coreDataManager, apiManager: APIManager.shared)
+        let savedBooksViewModel = SavedBooksViewModel(coreDataManager: coreDataManager)
         let savedBooksVC = SavedBooksViewController(viewModel: savedBooksViewModel)
         let savedNavigationController = UINavigationController(rootViewController: savedBooksVC)
         savedNavigationController.tabBarItem = UITabBarItem(title: "담은 책 리스트",
