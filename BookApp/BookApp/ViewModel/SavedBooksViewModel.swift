@@ -10,47 +10,24 @@ import RxSwift
 import RxRelay
 
 class SavedBooksViewModel {
-    private let coreDataManager: CoreDataManager
-    private let apiManager: APIManager
-    private let disposeBag = DisposeBag()
-    
-    let savedBooks = BehaviorRelay<[KakaoBook]>(value: [])
-    
-    init(coreDataManager: CoreDataManager, apiManager: APIManager) {
+    let coreDataManager: CoreDataManager
+    let savedBooks = BehaviorRelay<[BookEntity]>(value: [])
+
+    init(coreDataManager: CoreDataManager) {
         self.coreDataManager = coreDataManager
-        self.apiManager = apiManager
-        loadBooks()
     }
-    
+
     func loadBooks() {
-        let bookEntities = coreDataManager.fetchBooks()
-        let books = bookEntities.map { entity in
-            KakaoBook(
-                title: entity.title ?? "",
-                authors: [entity.author ?? ""],
-                price: Int(entity.price),
-                contents: entity.contents ?? "",
-                thumbnail: entity.thumbnail ?? ""
-            )
-        }
+        let books = coreDataManager.fetchBooks()
+        print("Fetched \(books.count) books from Core Data") // 디버깅 로그
         savedBooks.accept(books)
     }
-    
-    func searchBooks(query: String) {
-        apiManager.fetchBooks(query: query)
-            .observe(on: MainScheduler.instance)
-            .subscribe(onSuccess: { [weak self] books in
-                self?.savedBooks.accept(books)
-            }, onFailure:  { error in
-                print("\(error.localizedDescription)")
-            })
-            .disposed(by: disposeBag)
-    }
-    
-    
+
     func deleteAllBooks() {
-        CoreDataManager.shared.deleteAllBooks()
-        loadBooks()
+        coreDataManager.deleteAllBooks()
+        loadBooks() // 삭제 후 다시 로드
+        print("All books deleted and reloaded") // 디버깅 로그
     }
 }
+
 

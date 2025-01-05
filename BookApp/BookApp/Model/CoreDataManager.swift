@@ -15,6 +15,18 @@ final class CoreDataManager {
     
     lazy var persistentContainer: NSPersistentContainer = {
         let container = NSPersistentContainer(name: "Book")
+        
+        func resetPersistentStore() {
+            if let storeURL = persistentContainer.persistentStoreCoordinator.persistentStores.first?.url {
+                do {
+                    try persistentContainer.persistentStoreCoordinator.destroyPersistentStore(at: storeURL, ofType: NSSQLiteStoreType, options: nil)
+                    print("Core Data 저장소 초기화 완료")
+                } catch {
+                    print("Core Data 저장소 초기화 실패: \(error)")
+                }
+            }
+        }
+        
         let description = container.persistentStoreDescriptions.first
         description?.shouldMigrateStoreAutomatically = true
         description?.shouldInferMappingModelAutomatically = true
@@ -42,32 +54,32 @@ final class CoreDataManager {
           }
       }
 
-      // Fetch
-      func fetchBooks() -> [BookEntity] {
-          let request: NSFetchRequest<BookEntity> = BookEntity.fetchRequest()
-          do {
-              return try context.fetch(request)
-          } catch {
-              print("데이터 가져오기 실패: \(error)")
-              return []
-          }
-      }
-
       // Add
     func addBook(title: String, author: String, image: UIImage?, price: Int) {
-        let book = BookEntity(context: context)
-        book.title = title
-        book.author = author
-        book.dateAdded = Date()
-        book.price = Int32(price)
+        context.perform { [weak self] in
+            guard let self = self else { return }
+            
+            print("Attempting to add book: \(title)")
+            guard let entity = NSEntityDescription.entity(forEntityName: "Book", in: self.context) else {
+                print("Error: Book entity not found")
+                return
+            }
+            
+            let book = BookEntity(entity: entity, insertInto: self.context)
+            book.title = title
+            book.author = author
+            book.dateAdded = Date()
+            book.price = Int32(price)
 
-        if let image = image, let imageData = image.jpegData(compressionQuality: 1.0) {
-            book.imageData = imageData
+            if let image = image, let imageData = image.jpegData(compressionQuality: 1.0) {
+                book.imageData = imageData
+            }
+
+            print("Book added successfully: \(title)")
+            self.saveContext()
         }
-
-        saveContext()
     }
-    
+
     func fetchRecentBooks() -> [KakaoBook] {
         let request: NSFetchRequest<BookEntity> = BookEntity.fetchRequest()
         request.sortDescriptors = [NSSortDescriptor(key: "dateAdded", ascending: false)]
@@ -91,17 +103,35 @@ final class CoreDataManager {
     }
     
     func saveBook(_ book: KakaoBook) {
-        print("Saving book: \(book)")  // KakaoBook 객체 확인
-        let bookEntity = BookEntity(context: context)
-        bookEntity.title = book.title ?? "Unknown Title"
-        bookEntity.author = book.authors.joined(separator: ", ") ?? "Unknown Author"
-        bookEntity.dateAdded = Date()
-        bookEntity.price = Int32(book.price ?? 0)
+        context.perform { [weak self] in
+            guard let self = self else { return }
+            
+            print("Attempting to save book: \(book.title ?? "Unknown")") // 디버깅 로그
+            
+            let bookEntity = BookEntity(context: self.context)
+            bookEntity.title = book.title ?? "제목 없음"
+            bookEntity.author = book.authors.joined(separator: ", ")
+            bookEntity.dateAdded = Date()
+            bookEntity.price = Int32(book.price ?? 0)
 
-        saveContext()
+            self.saveContext()
+            print("Book saved successfully: \(book.title ?? "Unknown")") // 디버깅 로그
+        }
     }
-
-
+    
+    func fetchBooks() -> [BookEntity] {
+        context.performAndWait {
+            do {
+                let books = try context.fetch(BookEntity.fetchRequest())
+                print("Fetched \(books.count) books from Core Data") // 디버깅
+                return books
+            } catch {
+                print("Failed to fetch books: \(error)")
+                return []
+            }
+        }
+    }
+    
       // Delete All
       func deleteAllBooks() {
           let fetchRequest: NSFetchRequest<NSFetchRequestResult> = BookEntity.fetchRequest()

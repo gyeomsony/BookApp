@@ -8,6 +8,7 @@
 import UIKit
 import SnapKit
 import RxSwift
+import RxCocoa
 
 class SavedBooksViewController: UIViewController {
     
@@ -15,7 +16,7 @@ class SavedBooksViewController: UIViewController {
     private let disposeBag = DisposeBag()
     private let viewModel: SavedBooksViewModel
     
-    init(viewModel: SavedBooksViewModel = SavedBooksViewModel(coreDataManager: CoreDataManager.shared, apiManager: APIManager.shared)) {
+    init(viewModel: SavedBooksViewModel) {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
     }
@@ -96,22 +97,29 @@ class SavedBooksViewController: UIViewController {
             .observe(on: MainScheduler.instance)
             .bind(to: tableView.rx.items(cellIdentifier: "BookCell")) { index, book, cell in
                 cell.textLabel?.text = book.title
-                cell.detailTextLabel?.text = book.authors.joined(separator: ", ")
+                cell.detailTextLabel?.text = book.author
             }
             .disposed(by: disposeBag)
-        
-        // 셀 선택 이벤트 바인딩
+
+        // BehaviorRelay 데이터 변경 확인 로그
+        viewModel.savedBooks
+            .observe(on: MainScheduler.instance)
+            .bind(to: tableView.rx.items(cellIdentifier: "BookCell")) { index, book, cell in
+                cell.textLabel?.text = book.title
+                cell.detailTextLabel?.text = book.author
+            }
+            .disposed(by: disposeBag)
+
+        // 셀 선택 이벤트
         tableView.rx.itemSelected
-            .observe(on: MainScheduler.instance) // 메인 스레드에서 실행 보장
+            .observe(on: MainScheduler.instance)
             .subscribe(onNext: { [weak self] indexPath in
                 guard let self = self else { return }
                 self.tableView.deselectRow(at: indexPath, animated: true)
 
-                guard indexPath.row < self.viewModel.savedBooks.value.count else { return }
                 let selectedBook = self.viewModel.savedBooks.value[indexPath.row]
+                print("Selected book: \(selectedBook.title ?? "Unknown")") // 디버깅 로그
                 
-                print("Selected book: \(selectedBook.title)") // 디버깅 로그
-
                 let bookDetailVC = BookDetailViewController()
                 bookDetailVC.book = selectedBook
                 bookDetailVC.modalPresentationStyle = .formSheet
