@@ -13,8 +13,16 @@ class SavedBooksViewController: UIViewController {
     
     private let tableView = UITableView()
     private let disposeBag = DisposeBag()
-    private let viewModel = SavedBooksViewModel(coreDataManager: CoreDataManager.shared,
-                                                apiManager: APIManager.shared)
+    private let viewModel: SavedBooksViewModel
+    
+    init(viewModel: SavedBooksViewModel = SavedBooksViewModel(coreDataManager: CoreDataManager.shared, apiManager: APIManager.shared)) {
+        self.viewModel = viewModel
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     private let titleLabel: UILabel = {
         let label = UILabel()
@@ -36,7 +44,12 @@ class SavedBooksViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .white
         setupUI()
-        
+        bindViewModel()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        viewModel.loadBooks() // 화면이 나타날 때마다 데이터 새로고침
     }
     
     private func setupUI() {
@@ -67,8 +80,8 @@ class SavedBooksViewController: UIViewController {
         }
         
         // 테이블뷰 설정
-        tableView.dataSource = self
-        tableView.delegate = self
+        tableView.delegate = nil
+        tableView.dataSource = nil
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: "BookCell")
         
         // 버튼 액션
@@ -78,25 +91,46 @@ class SavedBooksViewController: UIViewController {
     }
     
     private func bindViewModel() {
+        // 테이블뷰 아이템 바인딩
         viewModel.savedBooks
             .observe(on: MainScheduler.instance)
-            .subscribe(onNext: { [weak self] books in
-                self?.tableView.reloadData()
+            .bind(to: tableView.rx.items(cellIdentifier: "BookCell")) { index, book, cell in
+                cell.textLabel?.text = book.title
+                cell.detailTextLabel?.text = book.authors.joined(separator: ", ")
+            }
+            .disposed(by: disposeBag)
+        
+        // 셀 선택 이벤트 바인딩
+        tableView.rx.itemSelected
+            .observe(on: MainScheduler.instance) // 메인 스레드에서 실행 보장
+            .subscribe(onNext: { [weak self] indexPath in
+                guard let self = self else { return }
+                self.tableView.deselectRow(at: indexPath, animated: true)
+
+                guard indexPath.row < self.viewModel.savedBooks.value.count else { return }
+                let selectedBook = self.viewModel.savedBooks.value[indexPath.row]
+                
+                print("Selected book: \(selectedBook.title)") // 디버깅 로그
+
+                let bookDetailVC = BookDetailViewController()
+                bookDetailVC.book = selectedBook
+                bookDetailVC.modalPresentationStyle = .formSheet
+                self.present(bookDetailVC, animated: true, completion: nil)
             })
-            .disposed(by: DisposeBag())
+            .disposed(by: disposeBag)
     }
 }
-    
-    extension SavedBooksViewController: UITableViewDataSource, UITableViewDelegate {
-        func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-            return viewModel.savedBooks.value.count
-        }
-        
-        func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-            let cell = tableView.dequeueReusableCell(withIdentifier: "BookCell", for: indexPath)
-            let book = viewModel.savedBooks.value[indexPath.row]
-            cell.textLabel?.text = book.title
-            return cell
-        }
-    }
+
+//extension SavedBooksViewController: UITableViewDataSource, UITableViewDelegate {
+//    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+//        return viewModel.savedBooks.value.count
+//    }
+//    
+//    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+//        let cell = tableView.dequeueReusableCell(withIdentifier: "BookCell", for: indexPath)
+//        let book = viewModel.savedBooks.value[indexPath.row]
+//        cell.textLabel?.text = book.title
+//        return cell
+//    }
+//}
 

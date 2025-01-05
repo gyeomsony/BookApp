@@ -7,6 +7,7 @@
 import UIKit
 import SnapKit
 import RxSwift
+import RxCocoa
 
 class BookSearchViewController: UIViewController, UISearchBarDelegate {
     // MARK: - Properties
@@ -87,8 +88,8 @@ class BookSearchViewController: UIViewController, UISearchBarDelegate {
     }
     
     private func setupTableView() {
-        tableView.delegate = self
-        tableView.dataSource = self
+        tableView.delegate = nil
+        tableView.dataSource = nil
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: "BookCell")
         tableView.rowHeight = 60
     }
@@ -98,23 +99,34 @@ class BookSearchViewController: UIViewController, UISearchBarDelegate {
     }
     
     private func setupBindings() {
-        // Search Bar 텍스트를 ViewModel의 searchQuery에 바인딩
-        searchBar.rx.text.orEmpty
-            .bind(to: viewModel.searchQuery)
-            .disposed(by: disposeBag)
-        
-        // ViewModel의 searchResults를 TableView와 바인딩
-        viewModel.searchResults
-            .bind(to: tableView.rx.items(cellIdentifier: "BookCell")) { index, book, cell in
-                cell.textLabel?.text = book.title
-                cell.detailTextLabel?.text = book.authors.joined(separator: ", ")
-            }
-            .disposed(by: disposeBag)
-        
-        // 최근 본 책을 ViewModel의 recentBooks와 바인딩
-        viewModel.recentBooks
-            .subscribe(onNext: { [weak self] _ in
-                self?.tableView.reloadData()
+        // 셀 선택 이벤트 처리
+        tableView.rx.itemSelected
+            .observe(on: MainScheduler.instance)
+            .subscribe(onNext: { [weak self] indexPath in
+                guard let self = self else { return }
+                
+                // 선택된 셀을 비활성화
+                self.tableView.deselectRow(at: indexPath, animated: true)
+
+                // 선택된 책 가져오기
+                let searchResults = self.viewModel.searchResults.value
+                guard indexPath.row < searchResults.count else {
+                    print("Error: Index out of bounds for searchResults")
+                    return
+                }
+
+                let selectedBook = searchResults[indexPath.row]
+                print("Selected Book: \(selectedBook.title)") // 디버깅 로그
+
+                // BookDetailViewController에 데이터 전달
+                let bookDetailVC = BookDetailViewController()
+                bookDetailVC.book = selectedBook
+                bookDetailVC.modalPresentationStyle = .formSheet
+
+                // 모달 표시
+                self.present(bookDetailVC, animated: true) {
+                    print("Presented BookDetailViewController for: \(selectedBook.title)")
+                }
             })
             .disposed(by: disposeBag)
     }
@@ -149,64 +161,6 @@ class BookSearchViewController: UIViewController, UISearchBarDelegate {
             searchResults = []
             tableView.reloadData()
         }
-    }
-}
-
-
-// MARK: - UITableViewDataSource
-extension BookSearchViewController: UITableViewDataSource {
-    func numberOfSections(in tableView: UITableView) -> Int {
-        return 2
-    }
-    
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return section == 0 ? recentBooks.count : searchResults.count
-    }
-    
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "BookCell", for: indexPath)
-        cell.textLabel?.font = .systemFont(ofSize: 15)
-        
-        if indexPath.section == 0 {
-            // 최근 본 책은 KakaoBook 배열을 사용해야 하므로, title을 표시
-            let book = recentBooks[indexPath.row]
-            cell.textLabel?.text = book.title
-        } else {
-            // 검색 결과
-            guard indexPath.row < searchResults.count else {
-                // 인덱스가 범위를 벗어난 경우
-                return cell
-            }
-            let book = searchResults[indexPath.row]
-            cell.textLabel?.text = book.title
-            cell.detailTextLabel?.text = book.authors.joined(separator: ", ")
-        }
-        
-        return cell
-    }
-    
-    
-    func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-        return section == 0 ? "최근 본 책" : "검색 결과"
-    }
-}
-
-// MARK: - UITableViewDelegate
-extension BookSearchViewController: UITableViewDelegate {
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        tableView.deselectRow(at: indexPath, animated: true)
-        let bookDetailVC = BookDetailViewController()
-        
-        if indexPath.section == 0 {
-            let selectedBook = recentBooks[indexPath.row]
-            bookDetailVC.book = selectedBook
-        } else {
-            let selectedBook = searchResults[indexPath.row]
-            bookDetailVC.book = selectedBook
-        }
-        
-        bookDetailVC.modalPresentationStyle = .formSheet
-        present(bookDetailVC, animated: true, completion: nil)
     }
 }
 

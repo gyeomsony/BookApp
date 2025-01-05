@@ -233,35 +233,36 @@ class BookDetailViewController: UIViewController {
         guard let book = book else { return }
         CoreDataManager.shared.addBook(title: book.title, author: book.authors.first ?? "모름", image: nil, price: book.price ?? 0)
         
-        // 장바구니 화면 이동
-        let savedBooksVC = SavedBooksViewController()
-        navigationController?.pushViewController(savedBooksVC, animated: true)
+        // 모달 닫기
+        dismiss(animated: true) { [weak self] in
+            // 탭바의 두 번째 탭(장바구니)으로 이동
+            if let tabBarController = UIApplication.shared.windows.first?.rootViewController as? UITabBarController {
+                tabBarController.selectedIndex = 1
+            }
+        }
         
         print("책이 담겼습니다.")
     }
     
     private func populateUI() {
-        guard let book = book else { return }
+        guard let book = book else {
+            print("Error: Book data is nil")
+            return
+        }
+        print("Populating UI with book: \(book.title)")
         
         titleLabel.text = book.title
-        authorLabel.text = "저자: " + book.authors.joined(separator: ", ")
-        
-        if let price = book.price {
-            let formatter = NumberFormatter()
-            formatter.numberStyle = .decimal
-            priceLabel.text = "가격: \(formatter.string(from: NSNumber(value: price)) ?? "정보 없음")"
-        } else {
-            priceLabel.text = "가격: 정보 없음"
-        }
-        
-        descriptionLabel.text = book.contents?.isEmpty == false ? book.contents : "설명 없음"
-        
-        // 썸네일 이미지 로딩
-        if let thumbnailURL = book.thumbnail, let url = URL(string: thumbnailURL) {
+        authorLabel.text = "저자: \(book.authors.joined(separator: ", "))"
+        priceLabel.text = book.price != nil ? "가격: \(book.price!)원" : "가격 정보 없음"
+        descriptionLabel.text = book.contents ?? "설명 없음"
+
+        if let thumbnail = book.thumbnail, let url = URL(string: thumbnail) {
             loadImage(from: url)
+        } else {
+            bookImageView.image = UIImage(named: "defaultImage")
         }
     }
-    
+
     private func loadImage(from url: URL) {
         // 비동기적으로 이미지를 다운로드하여 UIImageView에 설정
         let task = URLSession.shared.dataTask(with: url) { [weak self] data, response, error in

@@ -15,8 +15,12 @@ final class CoreDataManager {
     
     lazy var persistentContainer: NSPersistentContainer = {
         let container = NSPersistentContainer(name: "Book")
+        let description = container.persistentStoreDescriptions.first
+        description?.shouldMigrateStoreAutomatically = true
+        description?.shouldInferMappingModelAutomatically = true
+        
         container.loadPersistentStores { _, error in
-            if let error = error {
+            if let error = error as NSError? {
                 fatalError("실패: \(error)")
             }
         }

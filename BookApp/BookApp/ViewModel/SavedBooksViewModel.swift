@@ -22,8 +22,8 @@ class SavedBooksViewModel {
         loadBooks()
     }
     
-    private func loadBooks() {
-        let bookEntities = CoreDataManager.shared.fetchBooks()
+    func loadBooks() {
+        let bookEntities = coreDataManager.fetchBooks()
         let books = bookEntities.map { entity in
             KakaoBook(
                 title: entity.title ?? "",
