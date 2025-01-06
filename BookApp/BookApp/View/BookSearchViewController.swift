@@ -37,7 +37,6 @@ class BookSearchViewController: UIViewController {
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        print("\(type(of: tableView))")
         setupUI()
         setupTableView()
         setupBindings()
