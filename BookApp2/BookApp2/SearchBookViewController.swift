@@ -18,7 +18,6 @@ class SearchBookViewController: UIViewController {
         self.tabBarItem = UITabBarItem(title: "Search",
                                        image: UIImage(systemName: "magnifyingglass"),
                                        tag: 0)
-        self.view.backgroundColor = .purple
     }
     
     required init?(coder: NSCoder) {
@@ -32,10 +31,13 @@ class SearchBookViewController: UIViewController {
     }
 
     private func configureUI() {
+        self.view.backgroundColor = .white
         self.view.addSubview(searchBar)
     }
     
     private func makeConstraints() {
-        
+        self.searchBar.snp.makeConstraints {
+            $0.top.leading.trailing.equalTo(self.view.safeAreaLayoutGuide)
+        }
     }
 }
