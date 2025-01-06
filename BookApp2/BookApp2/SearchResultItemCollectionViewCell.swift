@@ -23,6 +23,14 @@ class SearchResultItemCollectionViewCell: UICollectionViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
+    func setLabelText(title: String,
+                      authors: [String],
+                      price: Int) {
+        self.titleLabel.text = title
+        self.authorLabel.text = authors.joined(separator: ",")
+        self.priceLabel.text = "\(price)원"
+    }
+    
     private func configureUI() {
         [
             titleLabel,
