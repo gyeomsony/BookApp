@@ -43,6 +43,7 @@ class SearchBookViewController: UIViewController {
         self.searchBar.snp.makeConstraints {
             $0.top.leading.trailing.equalTo(self.view.safeAreaLayoutGuide)
         }
+        
         self.searchListCollectionView.snp.makeConstraints {
             $0.top.equalTo(self.searchBar.snp.bottom)
             $0.leading.trailing.bottom.equalTo(self.view.safeAreaLayoutGuide)
