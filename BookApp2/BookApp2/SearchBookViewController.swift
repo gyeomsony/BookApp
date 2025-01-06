@@ -43,6 +43,10 @@ class SearchBookViewController: UIViewController {
         searchListCollectionView.dataSource = self
         
         searchListCollectionView.register(SearchResultItemCollectionViewCell.self, forCellWithReuseIdentifier: SearchResultItemCollectionViewCell.reuseIdentifier)
+        
+        searchListCollectionView.register(SearchResultCollectionReusableView.self,
+                                          forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
+                                          withReuseIdentifier: SearchResultCollectionReusableView.reuseIdentifier)
     }
     
     private func makeConstraints() {
@@ -73,6 +77,15 @@ extension SearchBookViewController: UICollectionViewDataSource {
                           price: book.price)
         
         return cell
+    }
+    
+    func collectionView(_ collectionView: UICollectionView,
+                        viewForSupplementaryElementOfKind kind: String,
+                        at indexPath: IndexPath) -> UICollectionReusableView {
+        
+        return collectionView.dequeueReusableSupplementaryView(ofKind: kind,
+                                                               withReuseIdentifier: SearchResultCollectionReusableView.reuseIdentifier,
+                                                               for: indexPath)
     }
     
     private func createLayout() -> UICollectionViewCompositionalLayout {
