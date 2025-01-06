@@ -10,12 +10,12 @@ import SnapKit
 
 class SearchBookViewController: UIViewController {
     
-    private var resultItems: []
+    private var resultItems: [Book] = []
     
     private let searchBar = UISearchBar()
     
     private(set) lazy var searchListCollectionView = UICollectionView(frame: .zero,
-                                                    collectionViewLayout: self.createLayout())
+                                                                      collectionViewLayout: self.createLayout())
     
     override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
         super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
@@ -34,7 +34,7 @@ class SearchBookViewController: UIViewController {
         self.configureUI()
         self.makeConstraints()
     }
-
+    
     private func configureUI() {
         self.view.backgroundColor = .white
         self.view.addSubview(searchBar)
@@ -59,11 +59,20 @@ class SearchBookViewController: UIViewController {
 
 extension SearchBookViewController: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return
+        return self.resultItems.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        <#code#>
+        
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: SearchResultItemCollectionViewCell.reuseIdentifier, for: indexPath) as! SearchResultItemCollectionViewCell
+        
+        let book = self.resultItems[indexPath.row]
+        
+        cell.setLabelText(title: book.title,
+                          authors: book.authors,
+                          price: book.price)
+        
+        return cell
     }
     
     private func createLayout() -> UICollectionViewCompositionalLayout {
