@@ -40,6 +40,8 @@ class SearchBookViewController: UIViewController {
         self.view.addSubview(searchBar)
         self.view.addSubview(searchListCollectionView)
         
+        searchBar.delegate = self
+        
         searchListCollectionView.dataSource = self
         
         searchListCollectionView.register(SearchResultItemCollectionViewCell.self, forCellWithReuseIdentifier: SearchResultItemCollectionViewCell.reuseIdentifier)
@@ -93,5 +95,31 @@ extension SearchBookViewController: UICollectionViewDataSource {
         let config = UICollectionLayoutListConfiguration(appearance: .plain)
         
         return UICollectionViewCompositionalLayout.list(using: config)
+    }
+}
+
+extension SearchBookViewController: UISearchBarDelegate {
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        searchBar.resignFirstResponder()
+    }
+    
+    func searchBarTextDidEndEditing(_ searchBar: UISearchBar) {
+        
+        let keyword = searchBar.text ?? ""
+        
+        var components = URLComponents(string: "https://dapi.kakao.com/v3/search/book")
+        
+        components?.queryItems = [
+            URLQueryItem(name: "query", value: keyword),
+            URLQueryItem(name: "size", value: "20"),
+        ]
+        
+        guard let url = components?.url else { return }
+        
+        var urlRequest = URLRequest(url: url)
+        
+        urlRequest.allHTTPHeaderFields = [
+            "Authorization" : "Authorization: KakaoAK 3a4facecbe99c3bf5eab0a5480368bd5"
+        ]
     }
 }
