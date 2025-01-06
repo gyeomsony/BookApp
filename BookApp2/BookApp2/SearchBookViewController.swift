@@ -12,6 +12,9 @@ class SearchBookViewController: UIViewController {
     
     private let searchBar = UISearchBar()
     
+    private(set) lazy var searchListCollectionView = UICollectionView(frame: .zero,
+                                                    collectionViewLayout: self.createLayout())
+    
     override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
         super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
         
@@ -33,11 +36,25 @@ class SearchBookViewController: UIViewController {
     private func configureUI() {
         self.view.backgroundColor = .white
         self.view.addSubview(searchBar)
+        self.view.addSubview(searchListCollectionView)
     }
     
     private func makeConstraints() {
         self.searchBar.snp.makeConstraints {
             $0.top.leading.trailing.equalTo(self.view.safeAreaLayoutGuide)
         }
+        self.searchListCollectionView.snp.makeConstraints {
+            $0.top.equalTo(self.searchBar.snp.bottom)
+            $0.leading.trailing.bottom.equalTo(self.view.safeAreaLayoutGuide)
+        }
+    }
+}
+
+extension SearchBookViewController {
+    func createLayout() -> UICollectionViewCompositionalLayout {
+        
+        let config = UICollectionLayoutListConfiguration(appearance: .plain)
+        
+        return UICollectionViewCompositionalLayout.list(using: config)
     }
 }
