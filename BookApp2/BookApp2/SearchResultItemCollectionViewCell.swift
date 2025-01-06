@@ -9,6 +9,8 @@ import UIKit
 
 class SearchResultItemCollectionViewCell: UICollectionViewCell {
     
+    static let reuseIdentifier = "SearchResultItemCollectionViewCell"
+    
     private let titleLabel = UILabel()
     private let authorLabel = UILabel()
     private let priceLabel = UILabel()

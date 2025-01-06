@@ -10,6 +10,8 @@ import SnapKit
 
 class SearchBookViewController: UIViewController {
     
+    private var resultItems: []
+    
     private let searchBar = UISearchBar()
     
     private(set) lazy var searchListCollectionView = UICollectionView(frame: .zero,
@@ -37,6 +39,10 @@ class SearchBookViewController: UIViewController {
         self.view.backgroundColor = .white
         self.view.addSubview(searchBar)
         self.view.addSubview(searchListCollectionView)
+        
+        searchListCollectionView.dataSource = self
+        
+        searchListCollectionView.register(SearchResultItemCollectionViewCell.self, forCellWithReuseIdentifier: SearchResultItemCollectionViewCell.reuseIdentifier)
     }
     
     private func makeConstraints() {
@@ -51,8 +57,16 @@ class SearchBookViewController: UIViewController {
     }
 }
 
-extension SearchBookViewController {
-    func createLayout() -> UICollectionViewCompositionalLayout {
+extension SearchBookViewController: UICollectionViewDataSource {
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        <#code#>
+    }
+    
+    private func createLayout() -> UICollectionViewCompositionalLayout {
         
         let config = UICollectionLayoutListConfiguration(appearance: .plain)
         
