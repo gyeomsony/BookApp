@@ -6,8 +6,11 @@
 //
 
 import UIKit
+import SnapKit
 
 class SearchBookViewController: UIViewController {
+    
+    private let searchBar = UISearchBar()
     
     override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
         super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
@@ -24,8 +27,15 @@ class SearchBookViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        // Do any additional setup after loading the view.
+        self.configureUI()
+        self.makeConstraints()
     }
 
+    private func configureUI() {
+        self.view.addSubview(searchBar)
+    }
+    
+    private func makeConstraints() {
+        
+    }
 }
